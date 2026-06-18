@@ -1,0 +1,308 @@
+// KAOKAO — Prisma Schema
+// Database: Supabase (PostgreSQL)
+// Auth: Supabase Auth (users.id ตรงกับ auth.users.id)
+// AI Embeddings: pgvector (แยก table)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ─────────────────────────────────────────────
+// CORE
+// ─────────────────────────────────────────────
+
+enum Role {
+  helper
+  owner
+  admin
+}
+
+enum Species {
+  dog
+  cat
+  other
+}
+
+enum Gender {
+  male
+  female
+  unknown
+}
+
+enum PetStatus {
+  active
+  missing
+}
+
+enum Privacy {
+  public
+  private
+}
+
+enum LostCaseStatus {
+  open
+  closed
+  stale_closed  // ปิดอัตโนมัติโดยระบบ (60 วัน idle) — ไม่ใช่เจ้าของยืนยัน
+}
+
+enum Helpfulness {
+  pending
+  helpful
+  false_report
+}
+
+enum ScanStatus {
+  pending
+  done
+  failed
+}
+
+enum NotificationType {
+  sighting
+  pet_lost_nearby
+  ai_match
+  owner_reply
+  vaccine_due
+  case_stale_warning  // แจ้งเตือนก่อน auto-close 7 วัน
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  // id ตรงกับ Supabase auth.users.id
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String?  @unique
+  phone        String?  @unique
+  role         Role     @default(helper)
+  name         String
+  nickname     String?
+  address      String?
+  socialLinks  Json?    @map("social_links")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  pets              Pet[]
+  lostCases         LostCase[]
+  sightings         Sighting[]
+  aiScans           AiScan[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// PET
+// ─────────────────────────────────────────────
+
+model Pet {
+  id               String    @id @default(uuid()) @db.Uuid
+  ownerId          String    @map("owner_id") @db.Uuid
+  name             String
+  species          Species
+  breed            String?
+  gender           Gender    @default(unknown)
+  color            String?
+  distinctFeatures String?   @map("distinct_features")
+  birthDate        DateTime? @map("birth_date")
+  approxAge        Int?      @map("approx_age")
+  status           PetStatus @default(active)
+  privacy          Privacy   @default(public)
+  qrCodeUrl        String?   @map("qr_code_url")
+  deletedAt        DateTime? @map("deleted_at")  // soft-delete เมื่อ owner ลบบัญชี
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  owner        User         @relation(fields: [ownerId], references: [id])
+  photos       PetPhoto[]
+  weightLogs   WeightLog[]
+  vaccinations Vaccination[]
+  vetVisits    VetVisit[]
+  lostCases    LostCase[]
+  aiMatches    AiMatch[]
+  embeddings   PetEmbedding[]
+
+  @@map("pets")
+}
+
+model PetPhoto {
+  id        String   @id @default(uuid()) @db.Uuid
+  petId     String   @map("pet_id") @db.Uuid
+  url       String
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  pet Pet @relation(fields: [petId], references: [id])
+
+  @@map("pet_photos")
+}
+
+model WeightLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  petId      String   @map("pet_id") @db.Uuid
+  weightKg   Float    @map("weight_kg")
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  pet Pet @relation(fields: [petId], references: [id])
+
+  @@map("weight_logs")
+}
+
+// ─────────────────────────────────────────────
+// HEALTH
+// ─────────────────────────────────────────────
+
+model Vaccination {
+  id          String   @id @default(uuid()) @db.Uuid
+  petId       String   @map("pet_id") @db.Uuid
+  vaccineName String   @map("vaccine_name")
+  givenDate   DateTime @map("given_date")
+  nextDueDate DateTime @map("next_due_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  pet Pet @relation(fields: [petId], references: [id])
+
+  @@map("vaccinations")
+}
+
+model VetVisit {
+  id         String   @id @default(uuid()) @db.Uuid
+  petId      String   @map("pet_id") @db.Uuid
+  visitDate  DateTime @map("visit_date")
+  clinicInfo String?  @map("clinic_info")
+  note       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  pet Pet @relation(fields: [petId], references: [id])
+
+  @@map("vet_visits")
+}
+
+// ─────────────────────────────────────────────
+// LOST & SIGHTING
+// ─────────────────────────────────────────────
+
+model LostCase {
+  id               String         @id @default(uuid()) @db.Uuid
+  petId            String         @map("pet_id") @db.Uuid
+  ownerId          String         @map("owner_id") @db.Uuid
+  dateLost         DateTime       @map("date_lost")
+  lastKnownLat     Float?         @map("last_known_lat")
+  lastKnownLng     Float?         @map("last_known_lng")
+  lastKnownAddress String?        @map("last_known_address")
+  reward           String?
+  notes            String?
+  photoUrl         String?        @map("photo_url")  // รูปแนบเมื่อ mark as lost
+  status           LostCaseStatus @default(open)
+  createdAt        DateTime       @default(now()) @map("created_at")
+
+  pet       Pet        @relation(fields: [petId], references: [id])
+  owner     User       @relation(fields: [ownerId], references: [id])
+  sightings Sighting[]
+
+  @@map("lost_cases")
+}
+
+model Sighting {
+  id              String      @id @default(uuid()) @db.Uuid
+  caseId          String      @map("case_id") @db.Uuid
+  reporterId      String?     @map("reporter_id") @db.Uuid
+  reporterContact String?     @map("reporter_contact")
+  photoUrl        String?     @map("photo_url")
+  lat             Float?
+  lng             Float?
+  note            String?
+  helpfulness     Helpfulness @default(pending)
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  case     LostCase @relation(fields: [caseId], references: [id])
+  reporter User?    @relation(fields: [reporterId], references: [id])
+
+  @@map("sightings")
+}
+
+// ─────────────────────────────────────────────
+// AI RECOGNITION
+// ─────────────────────────────────────────────
+
+model AiScan {
+  id        String     @id @default(uuid()) @db.Uuid
+  scannerId String     @map("scanner_id") @db.Uuid
+  imageUrl  String?    @map("image_url")  // nullify อัตโนมัติหลัง 24 ชม. (PDPA)
+  status    ScanStatus @default(pending)
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  scanner  User      @relation(fields: [scannerId], references: [id])
+  matches  AiMatch[]
+
+  @@map("ai_scans")
+}
+
+model AiMatch {
+  id             String    @id @default(uuid()) @db.Uuid
+  scanId         String    @map("scan_id") @db.Uuid
+  petId          String    @map("pet_id") @db.Uuid
+  score          Float
+  ownerConfirmed Boolean?  @map("owner_confirmed")
+  confirmedAt    DateTime? @map("confirmed_at")
+
+  scan AiScan @relation(fields: [scanId], references: [id])
+  pet  Pet    @relation(fields: [petId], references: [id])
+
+  @@map("ai_matches")
+}
+
+// pgvector — เก็บ embedding แยกจาก pet_photos
+model PetEmbedding {
+  id        String                      @id @default(uuid()) @db.Uuid
+  petId     String                      @map("pet_id") @db.Uuid
+  photoUrl  String                      @map("photo_url")
+  embedding Unsupported("vector(512)")
+  createdAt DateTime                    @default(now()) @map("created_at")
+
+  pet Pet @relation(fields: [petId], references: [id])
+
+  @@map("pet_embeddings")
+}
+
+// ─────────────────────────────────────────────
+// PUSH SUBSCRIPTIONS
+// ─────────────────────────────────────────────
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  endpoint  String   @unique
+  p256dh    String   // Web Push key
+  auth      String   // Web Push auth secret
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("push_subscriptions")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  refId     String?          @map("ref_id") @db.Uuid
+  message   String
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}

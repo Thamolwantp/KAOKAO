@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mermaid": {
+      "command": "npx",
+      "args": ["-y", "mermaid-mcp-app"]
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "mcp-sqlite-server"]
+    }
+  }
+}
