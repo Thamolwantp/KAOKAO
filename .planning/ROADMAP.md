@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Next.js 14 scaffold, Tailwind design tokens, shadcn/ui init
+- [x] 01-01-PLAN.md — Next.js 14 scaffold, Tailwind design tokens, shadcn/ui init
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -158,7 +158,7 @@ Phases execute in numeric order. Note Phase 7 and Phase 6 both depend on earlier
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 1/3 | In Progress|  |
 | 2. Auth | 0/TBD | Not started | - |
 | 3. Core Entities | 0/TBD | Not started | - |
 | 4. Lost Pet Recovery | 0/TBD | Not started | - |
