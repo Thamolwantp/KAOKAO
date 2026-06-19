@@ -32,7 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `npx prisma migrate dev` applies successfully; all tables (users, pets, lost_cases, notifications, push_subscriptions, etc.) exist in Supabase
   3. `npm run build` and `npm run lint` pass cleanly
   4. Supabase Storage buckets (pet-photos, qr-codes) are created; RLS policies are enabled on every table
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Next.js 14 scaffold, Tailwind design tokens, shadcn/ui init
+- [ ] 01-02-PLAN.md — Supabase clients, env config, Prisma migration (all 13 tables)
+- [ ] 01-03-PLAN.md — Storage buckets, RLS on all tables, full pipeline verification
 
 ### Phase 2: Auth
 **Goal**: Users can register, verify their email, log in, and reset their password; all authenticated routes are protected
@@ -120,7 +125,7 @@ Phases execute in numeric order. Note Phase 7 and Phase 6 both depend on earlier
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/3 | Not started | - |
 | 2. Auth | 0/TBD | Not started | - |
 | 3. Core Entities | 0/TBD | Not started | - |
 | 4. Lost Pet Recovery | 0/TBD | Not started | - |
