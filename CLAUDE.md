@@ -109,3 +109,68 @@ Push subscriptions are stored in `push_subscriptions` table (not yet in schema.p
 ### Out of Scope (v1)
 
 Native mobile app (iOS/Android) — PWA covers mobile use case for v1; real-time chat, SMS, cat face recognition, payment, multi-language i18n
+
+<!-- GSD:project-start source:PROJECT.md -->
+## Project
+
+**KAOKAO**
+
+KAOKAO is a Progressive Web App (PWA) for helping find lost pets — accessible from any browser and installable on iOS/Android home screens without an App Store. Pet owners create profiles and QR codes for each pet; anyone who finds a lost pet can scan the QR and notify the owner instantly without logging in. The platform combines geo-notifications (5 km radius push alerts to nearby Helpers) and AI dog face recognition (v1: stub) so finders and owners coordinate quickly.
+
+**Core Value:** Anyone who finds a lost pet can notify the owner immediately by scanning a QR code — no account required.
+
+### Constraints
+
+- **Tech Stack**: Next.js 14 App Router + Supabase (PostgreSQL + Auth + Storage + pgvector) + Prisma + Tailwind + shadcn/ui + Vercel — already decided
+- **Budget**: Free tier (Vercel + Supabase) for v1; Vercel Pro required for >1 Cron job/day
+- **Performance**: QR scan page load < 2s on mobile 3G
+- **Privacy**: PDPA compliance — EXIF stripped before storage, AI scan images auto-deleted after 24h, phone verification before displaying owner contact info
+- **Security**: RLS enabled on every table; service role key server-only; Admin requires TOTP MFA
+- **Geo**: PostGIS GiST index on `users.home_location` (geography type) + pgvector HNSW index (m=16, ef_construction=64) on `pet_embeddings.embedding`
+<!-- GSD:project-end -->
+
+<!-- GSD:stack-start source:STACK.md -->
+## Technology Stack
+
+Technology stack not yet documented. Will populate after codebase mapping or first phase.
+<!-- GSD:stack-end -->
+
+<!-- GSD:conventions-start source:CONVENTIONS.md -->
+## Conventions
+
+Conventions not yet established. Will populate as patterns emerge during development.
+<!-- GSD:conventions-end -->
+
+<!-- GSD:architecture-start source:ARCHITECTURE.md -->
+## Architecture
+
+Architecture not yet mapped. Follow existing patterns found in the codebase.
+<!-- GSD:architecture-end -->
+
+<!-- GSD:skills-start source:skills/ -->
+## Project Skills
+
+| Skill | Description | Path |
+|-------|-------------|------|
+| find-skills | Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill. | `.agents/skills/find-skills/SKILL.md` |
+<!-- GSD:skills-end -->
+
+<!-- GSD:workflow-start source:GSD defaults -->
+## GSD Workflow Enforcement
+
+Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
+
+Use these entry points:
+- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
+- `/gsd-debug` for investigation and bug fixing
+- `/gsd-execute-phase` for planned phase work
+
+Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
+<!-- GSD:workflow-end -->
+
+<!-- GSD:profile-start -->
+## Developer Profile
+
+> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
+> This section is managed by `generate-claude-profile` -- do not edit manually.
+<!-- GSD:profile-end -->

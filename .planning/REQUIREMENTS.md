@@ -124,40 +124,38 @@
 
 ## Traceability
 
-*Populated during roadmap creation.*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| PET-01 | TBD | Pending |
-| PET-02 | TBD | Pending |
-| PET-03 | TBD | Pending |
-| HEALTH-01 | TBD | Pending |
-| HEALTH-02 | TBD | Pending |
-| SCAN-01 | TBD | Pending |
-| SCAN-02 | TBD | Pending |
-| SCAN-03 | TBD | Pending |
-| LOST-01 | TBD | Pending |
-| LOST-02 | TBD | Pending |
-| LOST-03 | TBD | Pending |
-| LOST-04 | TBD | Pending |
-| LOST-05 | TBD | Pending |
-| NOTIF-01 | TBD | Pending |
-| FEED-01 | TBD | Pending |
-| FEED-02 | TBD | Pending |
-| AI-01 | TBD | Pending |
-| AI-02 | TBD | Pending |
-| AI-03 | TBD | Pending |
-| AI-04 | TBD | Pending |
-| PWA-01 | TBD | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| PET-01 | Phase 3 | Pending |
+| PET-02 | Phase 3 | Pending |
+| PET-03 | Phase 3 | Pending |
+| HEALTH-01 | Phase 7 | Pending |
+| HEALTH-02 | Phase 7 | Pending |
+| SCAN-01 | Phase 5 | Pending |
+| SCAN-02 | Phase 5 | Pending |
+| SCAN-03 | Phase 5 | Pending |
+| LOST-01 | Phase 4 | Pending |
+| LOST-02 | Phase 4 | Pending |
+| LOST-03 | Phase 4 | Pending |
+| LOST-04 | Phase 4 | Pending |
+| LOST-05 | Phase 4 | Pending |
+| NOTIF-01 | Phase 5 | Pending |
+| FEED-01 | Phase 6 | Pending |
+| FEED-02 | Phase 6 | Pending |
+| AI-01 | Phase 6 | Pending |
+| AI-02 | Phase 6 | Pending |
+| AI-03 | Phase 6 | Pending |
+| AI-04 | Phase 6 | Pending |
+| PWA-01 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0 (TBD — roadmap pending)
-- Unmapped: 24 ⚠
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-19*
-*Last updated: 2026-06-19 after initial definition from spec.md*
+*Last updated: 2026-06-19 — traceability populated after roadmap creation*
