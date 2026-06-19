@@ -1,34 +1,92 @@
 {
   "version": "1.0",
-  "timestamp": "2026-06-19T03:44:56.456Z",
-  "phase": null,
-  "phase_name": null,
-  "phase_dir": null,
-  "plan": null,
-  "task": null,
-  "total_tasks": null,
+  "timestamp": "2026-06-19T07:59:05.210Z",
+  "phase": "01",
+  "phase_name": "foundation",
+  "phase_dir": ".planning/phases/01-foundation",
+  "plan": 2,
+  "task": 2,
+  "total_tasks": 2,
   "status": "paused",
   "completed_tasks": [
-    {"id": 1, "name": "Initialize GSD project structure", "status": "done", "commit": "7a20958"},
-    {"id": 2, "name": "Write PROJECT.md from spec.md", "status": "done", "commit": "181a9e4"},
-    {"id": 3, "name": "Define v1 REQUIREMENTS.md (24 requirements across 9 categories)", "status": "done", "commit": "4b634cf"},
-    {"id": 4, "name": "Create ROADMAP.md (8 phases, horizontal layers)", "status": "done", "commit": "beaa6dc"}
+    {
+      "id": "01-01",
+      "name": "Next.js 14 App Router scaffold + Tailwind KAOKAO tokens + shadcn/ui",
+      "status": "done",
+      "commit": "6be37b3"
+    },
+    {
+      "id": "01-02-T1",
+      "name": "Supabase clients, Prisma singleton, env template",
+      "status": "done",
+      "commit": "5b36b01"
+    }
   ],
   "remaining_tasks": [
-    {"id": 5, "name": "Plan Phase 1: Foundation", "status": "not_started"},
-    {"id": 6, "name": "Execute Phase 1: Foundation", "status": "not_started"},
-    {"id": 7, "name": "Plan and execute phases 2-8", "status": "not_started"}
+    {
+      "id": "01-02-T2",
+      "name": "Run prisma migrate dev --name init (13 tables into Supabase)",
+      "status": "blocked",
+      "blocker": "DATABASE_URL and DIRECT_URL in .env.local have unfilled [ref]/[region] placeholders"
+    },
+    {
+      "id": "01-03",
+      "name": "Supabase Storage buckets + RLS + health-check page",
+      "status": "not_started"
+    }
   ],
-  "blockers": [],
-  "human_actions_pending": [],
+  "blockers": [
+    {
+      "description": ".env.local DATABASE_URL/DIRECT_URL contain literal [ref] and [region] bracket placeholders — user copied from .env.example without substituting real project ref and AWS region",
+      "type": "human_action",
+      "workaround": "Get real connection strings from Supabase dashboard: Settings → Database → Connection string tab (auto-populates real values, just replace [YOUR-PASSWORD])"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Fix .env.local: copy real connection strings from Supabase dashboard Settings → Database → Connection string tab. Replace only [YOUR-PASSWORD]. Do NOT copy from .env.example — that file has placeholder brackets.",
+      "context": "prisma migrate dev fails with P1012 — brackets in URL cause shell/wasm env lookup to fail",
+      "blocking": true
+    },
+    {
+      "action": "After fixing .env.local: run `source .env.local && npx prisma migrate dev --name init` then verify table count = 13",
+      "context": "Task 2 of plan 01-02 — creates all 13 app tables",
+      "blocking": true
+    },
+    {
+      "action": "Restore accidentally deleted file: git restore .env.example",
+      "context": "Deleted from working tree during session — still in git HEAD",
+      "blocking": false
+    }
+  ],
   "decisions": [
-    {"decision": "Horizontal Layers project structure (not vertical MVP slices)", "rationale": "User chose horizontal layers for clear layer-by-layer dependency", "phase": "init"},
-    {"decision": "Standard granularity (5-8 phases)", "rationale": "User chose standard; roadmapper produced 8 phases", "phase": "init"},
-    {"decision": "Interactive mode (not YOLO)", "rationale": "User wants to confirm at each step", "phase": "init"},
-    {"decision": "v1 scope is trimmed: no guest sighting submission, no geo-notifications, no web push, no admin panel, no vaccinations", "rationale": "User scoped down to core display + lost case lifecycle + AI stub + PWA", "phase": "init"},
-    {"decision": "Phase 4 cron: stale-case-check and stale-case-close need pg_cron or Vercel Pro (4 daily jobs exceed Hobby tier)", "rationale": "Roadmapper flagged this — must resolve before Phase 4 planning", "phase": "4"}
+    {
+      "decision": "Prisma pinned to v6.19.2 (NOT latest v7.x)",
+      "rationale": "Prisma v7 removed url = env('DATABASE_URL') datasource syntax; existing schema.prisma requires v6",
+      "phase": "01"
+    },
+    {
+      "decision": "Supabase agent skills installed (supabase + supabase-postgres-best-practices)",
+      "rationale": "User ran npx skills add supabase/agent-skills",
+      "phase": "01"
+    },
+    {
+      "decision": "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is new naming (was ANON_KEY) — update .env.example if needed",
+      "rationale": "Supabase dashboard now shows PUBLISHABLE_KEY not ANON_KEY",
+      "phase": "01"
+    }
   ],
-  "uncommitted_files": [],
-  "next_action": "Run /gsd:plan-phase 1 to plan the Foundation phase (Next.js setup, Supabase config, Prisma migration, CI/CD scaffold)",
-  "context_notes": "Project fully initialized. spec.md is authoritative. schema.prisma already has all tables including push_subscriptions, stale_closed enum, pgvector. No app code exists — greenfield. 24 v1 requirements across 8 phases. Phase 7 (Health) depends on Phase 3, not Phase 6 — can be planned in parallel with Phase 6."
+  "uncommitted_files": [
+    ".env.example — deleted from working tree (restore with git restore .env.example)",
+    ".planning/config.json — modified (skills-lock entry from Supabase skills install)",
+    "package.json — modified (user ran manual npm install prisma supabase @supabase/supabase-js @supabase/ssr)",
+    "package-lock.json — modified",
+    "skills-lock.json — modified",
+    ".agents/skills/supabase-postgres-best-practices/ — new",
+    ".agents/skills/supabase/ — new",
+    ".claude/skills/supabase — new",
+    ".claude/skills/supabase-postgres-best-practices — new"
+  ],
+  "next_action": "1) git restore .env.example  2) Commit skills + package changes  3) Fix .env.local (real Supabase connection strings)  4) npx prisma migrate dev --name init  5) Verify table count=13  6) /gsd:resume-work to continue wave 2 Task 2 completion + wave 3",
+  "context_notes": "Phase 1 wave 1 (01-01) fully merged to main — Next.js scaffold committed. Wave 2 checkpoint: plan 01-02 Task 1 committed and merged, SUMMARY.md exists but marks Task 2 as pending credentials. No active worktrees. Wave 3 (01-03: storage buckets + RLS + health page) hasn't started. The migration MUST succeed before wave 3 can be executed — plan 01-03 depends on tables existing."
 }
